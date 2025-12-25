@@ -72,11 +72,26 @@ jobs:
         with:
           name: v2rayN-macos-arm64
           path: .
+      - name: 重命名产物以包含版本号
+        run: |
+          VERSION="${{ github.ref_name }}"
+          mv v2rayN-windows-x64.zip "v2rayN-windows-x64-${VERSION}.zip"
+          mv v2rayN-linux-x64.zip "v2rayN-linux-x64-${VERSION}.zip"
+          mv v2rayN-macos-arm64.zip "v2rayN-macos-arm64-${VERSION}.zip"
+      - name: 生成 SHA256 校验文件
+        run: |
+          shasum -a 256 v2rayN-windows-x64-*.zip > v2rayN-windows-x64.sha256
+          shasum -a 256 v2rayN-linux-x64-*.zip > v2rayN-linux-x64.sha256
+          shasum -a 256 v2rayN-macos-arm64-*.zip > v2rayN-macos-arm64.sha256
       - uses: softprops/action-gh-release@v1
         with:
           files: |
-            v2rayN-windows-x64.zip
-            v2rayN-linux-x64.zip
-            v2rayN-macos-arm64.zip
+            v2rayN-windows-x64-*.zip
+            v2rayN-linux-x64-*.zip
+            v2rayN-macos-arm64-*.zip
+            v2rayN-windows-x64.sha256
+            v2rayN-linux-x64.sha256
+            v2rayN-macos-arm64.sha256
+          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
