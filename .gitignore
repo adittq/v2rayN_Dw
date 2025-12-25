@@ -1,0 +1,36 @@
+# macOS
+.DS_Store
+
+# .NET build outputs
+**/bin/
+**/obj/
+
+# IDE
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Rider / JetBrains
+.Rider/
+
+# App bundle and local runtime
+/v2rayN.app/
+/dotnet/
+
+# Logs and runtime configs
+**/guiLogs/
+**/binConfigs/
+
+# Cache and temp
+**/guiTemps/
+**/guiFonts/
+
+# SQLite local database
+**/*.db
+
+# Avalonia build cache
+**/bin/Debug/
+**/bin/Release/
