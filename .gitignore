@@ -1,5 +1,6 @@
 # macOS
 .DS_Store
+._*
 
 # .NET build outputs
 **/bin/
@@ -19,6 +20,7 @@
 # App bundle and local runtime
 /v2rayN.app/
 /dotnet/
+/v2rayN-macos-arm64/
 
 # Logs and runtime configs
 **/guiLogs/
