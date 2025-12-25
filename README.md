@@ -71,10 +71,10 @@ v2rayN/
 
   ```bash
   # 清理代理（断网时恢复直连）
-  v2rayN-master/v2rayN/v2rayN.Desktop/bin/Debug/net8.0/binConfigs/proxy_set_osx_sh.sh clear
+  ./binConfigs/proxy_set_osx_sh.sh clear
 
   # 设置代理（示例：127.0.0.1:10808）
-  v2rayN-master/v2rayN/v2rayN.Desktop/bin/Debug/net8.0/binConfigs/proxy_set_osx_sh.sh set 127.0.0.1 10808
+  ./binConfigs/proxy_set_osx_sh.sh set 127.0.0.1 10808
   ```
 
 相关代码参考：
