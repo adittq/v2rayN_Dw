@@ -9,6 +9,35 @@ on:
     branches:
       - main
 jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet restore v2rayN-master/v2rayN/v2rayN.sln
+      - run: dotnet publish v2rayN-master/v2rayN/v2rayN.Desktop/v2rayN.Desktop.csproj -c Release -r win-x64 --self-contained true -o out/win-x64
+      - shell: pwsh
+        run: Compress-Archive -Path out/win-x64/* -DestinationPath out/v2rayN-windows-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v2rayN-windows-x64
+          path: out/v2rayN-windows-x64.zip
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet restore v2rayN-master/v2rayN/v2rayN.sln
+      - run: dotnet publish v2rayN-master/v2rayN/v2rayN.Desktop/v2rayN.Desktop.csproj -c Release -r linux-x64 --self-contained true -o out/linux-x64
+      - run: zip -r out/v2rayN-linux-x64.zip out/linux-x64
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v2rayN-linux-x64
+          path: out/v2rayN-linux-x64.zip
   build-macos:
     runs-on: macos-latest
     steps:
@@ -25,16 +54,27 @@ jobs:
           path: out/v2rayN-macos-arm64.zip
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: build-macos
+    needs: [build-windows, build-linux, build-macos]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: v2rayN-windows-x64
+          path: .
+      - uses: actions/download-artifact@v4
+        with:
+          name: v2rayN-linux-x64
+          path: .
       - uses: actions/download-artifact@v4
         with:
           name: v2rayN-macos-arm64
           path: .
       - uses: softprops/action-gh-release@v1
         with:
-          files: v2rayN-macos-arm64.zip
+          files: |
+            v2rayN-windows-x64.zip
+            v2rayN-linux-x64.zip
+            v2rayN-macos-arm64.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
