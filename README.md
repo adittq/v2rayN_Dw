@@ -39,12 +39,12 @@ v2rayN/
   1. 进入目录：
 
      ```bash
-     cd v2rayN-master/v2rayN/v2rayN.Desktop/bin/Debug/net8.0
+     cd bin/Debug/net8.0
      ```
   2. 启动：
 
      ```bash
-     /Volumes/ITGZ-PCle-4/v2rayN/dotnet/dotnet v2rayN.dll
+     dotnet v2rayN.dll
      ```
 
 ## 构建与打包
