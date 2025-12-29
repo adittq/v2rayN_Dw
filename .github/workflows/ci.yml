@@ -67,7 +67,7 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet workload install android
       - run: dotnet restore v2rayN-android/V2rayN.Android.csproj
-      - run: dotnet publish v2rayN-android/V2rayN.Android.csproj -c Release -f net8.0-android -o out/android
+      - run: dotnet publish v2rayN-android/V2rayN.Android.csproj -c Release -f net8.0-android -r android-arm64 -p:AndroidPackageFormat=apk -o out/android
       - name: 提取APK
         run: |
           APK_PATH=$(find out/android -name '*.apk' | head -n 1)

@@ -6,6 +6,7 @@
     <ApplicationTitle>v2rayN_Dw</ApplicationTitle>
     <AndroidUseLatestPlatformSdk>true</AndroidUseLatestPlatformSdk>
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
   </PropertyGroup>
 </Project>
-
