@@ -69,14 +69,19 @@ jobs:
       - run: dotnet workload install android
       - run: dotnet restore v2rayN-android/V2rayN.Android.csproj
       - run: dotnet publish v2rayN-android/V2rayN.Android.csproj -c Release -f net8.0-android -r android-arm64 -p:AndroidPackageFormat=apk -o out/android
+      - name: 列出构建输出
+        run: |
+          ls -la out/android || true
       - name: 提取APK
         run: |
           APK_PATH=$(find out/android -name '*.apk' | head -n 1)
           cp "$APK_PATH" out/v2rayN-android.apk
+          ls -la out || true
       - uses: actions/upload-artifact@v4
         with:
           name: v2rayN-android-apk
           path: out/v2rayN-android.apk
+          if-no-files-found: error
   release:
     if: startsWith(github.ref, 'refs/tags/')
     needs: [build-windows, build-linux, build-macos, build-android]
@@ -106,6 +111,7 @@ jobs:
           mv v2rayN-linux-x64.zip "v2rayN-linux-x64-${VERSION}.zip"
           mv v2rayN-macos-arm64.zip "v2rayN-macos-arm64-${VERSION}.zip"
           mv v2rayN-android.apk "v2rayN-android-${VERSION}.apk"
+          ls -la .
       - name: 生成 SHA256 校验文件
         run: |
           shasum -a 256 v2rayN-windows-x64-*.zip > v2rayN-windows-x64.sha256
@@ -124,5 +130,6 @@ jobs:
             v2rayN-macos-arm64.sha256
             v2rayN-android.sha256
           generate_release_notes: true
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
