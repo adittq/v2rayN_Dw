@@ -54,9 +54,31 @@ jobs:
         with:
           name: v2rayN-macos-arm64
           path: out/v2rayN-macos-arm64.zip
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet workload install android
+      - run: dotnet restore v2rayN-android/V2rayN.Android.csproj
+      - run: dotnet publish v2rayN-android/V2rayN.Android.csproj -c Release -f net8.0-android -o out/android
+      - name: 提取APK
+        run: |
+          APK_PATH=$(find out/android -name '*.apk' | head -n 1)
+          cp "$APK_PATH" out/v2rayN-android.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v2rayN-android-apk
+          path: out/v2rayN-android.apk
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [build-windows, build-linux, build-macos]
+    needs: [build-windows, build-linux, build-macos, build-android]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -72,26 +94,34 @@ jobs:
         with:
           name: v2rayN-macos-arm64
           path: .
+      - uses: actions/download-artifact@v4
+        with:
+          name: v2rayN-android-apk
+          path: .
       - name: 重命名产物以包含版本号
         run: |
           VERSION="${{ github.ref_name }}"
           mv v2rayN-windows-x64.zip "v2rayN-windows-x64-${VERSION}.zip"
           mv v2rayN-linux-x64.zip "v2rayN-linux-x64-${VERSION}.zip"
           mv v2rayN-macos-arm64.zip "v2rayN-macos-arm64-${VERSION}.zip"
+          mv v2rayN-android.apk "v2rayN-android-${VERSION}.apk"
       - name: 生成 SHA256 校验文件
         run: |
           shasum -a 256 v2rayN-windows-x64-*.zip > v2rayN-windows-x64.sha256
           shasum -a 256 v2rayN-linux-x64-*.zip > v2rayN-linux-x64.sha256
           shasum -a 256 v2rayN-macos-arm64-*.zip > v2rayN-macos-arm64.sha256
+          shasum -a 256 v2rayN-android-*.apk > v2rayN-android.sha256
       - uses: softprops/action-gh-release@v1
         with:
           files: |
             v2rayN-windows-x64-*.zip
             v2rayN-linux-x64-*.zip
             v2rayN-macos-arm64-*.zip
+            v2rayN-android-*.apk
             v2rayN-windows-x64.sha256
             v2rayN-linux-x64.sha256
             v2rayN-macos-arm64.sha256
+            v2rayN-android.sha256
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
