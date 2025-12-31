@@ -68,7 +68,17 @@ jobs:
           dotnet-version: 8.0.x
       - run: dotnet workload install android
       - run: dotnet restore v2rayN-android/V2rayN.Android.csproj
+      - name: 生成签名密钥
+        shell: pwsh
+        run: |
+          & keytool -genkey -v -keystore release.keystore -storepass android -keypass android -alias v2rayndw -keyalg RSA -keysize 2048 -validity 3650 -dname "CN=v2rayN_Dw, OU=Dev, O=v2rayN_Dw, L=, S=, C=US"
       - run: dotnet publish v2rayN-android/V2rayN.Android.csproj -c Release -f net8.0-android -r android-arm64 -p:AndroidPackageFormat=apk -o out/android
+        env:
+          ANDROID_SIGNING_KEYSTORE: release.keystore
+      - name: 使用签名参数重新打包为APK（带签名）
+        shell: pwsh
+        run: |
+          dotnet publish v2rayN-android/V2rayN.Android.csproj -c Release -f net8.0-android -r android-arm64 -p:AndroidPackageFormat=apk -p:AndroidSigningKeyStore=release.keystore -p:AndroidSigningStorePass=android -p:AndroidSigningKeyAlias=v2rayndw -p:AndroidSigningKeyPass=android -o out/android
       - name: 列出构建输出
         shell: pwsh
         run: |
