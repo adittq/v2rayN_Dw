@@ -18,7 +18,7 @@ v2rayN/
 ├─ v2rayN-master/                     上游源码目录
 │  ├─ v2rayN/v2rayN.Desktop/          Avalonia 桌面工程
 │  ├─ ServiceLib/                     业务与核心管理
-│  └─ ... 
+│  └─ ...
 ├─ v2rayN.app/                        macOS 应用封装（本地运行生成）
 │  ├─ Contents/MacOS/v2rayN_launcher.sh    启动脚本
 │  └─ Contents/Info.plist
@@ -66,6 +66,21 @@ v2rayN/
 - 稳定版本从 Releases 下载：https://github.com/adittq/v2rayN_Dw/releases
 - CI 构建产物在 Actions 的最新工作流运行中获取
 
+## 下载与安装（平台）
+- Android
+  - 在 Releases 下载 v2rayN-android-<版本>.apk
+  - 启用“未知来源”，直接安装
+  - 校验示例：
+    ```bash
+    shasum -a 256 v2rayN-android-<版本>.apk
+    cat v2rayN-android.sha256
+    ```
+- iOS 模拟器（iPad 兼容）
+  - 在 Releases 下载 v2rayN-ios-simulator-<版本>.zip 并解压
+  - 在 macOS 打开 Xcode → Window → Devices and Simulators → 选择 iOS Simulator，运行解压后的模拟器包
+- Windows/Linux/macOS 桌面
+  - 下载对应 zip 包并解压，按本 README 的“快速开始/构建与打包”章节运行
+
 ## 系统代理脚本
 - 设置或清理系统代理（macOS）：
 
@@ -102,6 +117,14 @@ v2rayN/
 ## 部署
 - 仓库地址：`https://github.com/adittq/v2rayN_Dw`
 - 已针对 GitHub 大文件限制进行清理，建议将打包产物发布到 Releases，而非直接提交到仓库。
+
+## iOS 真机安装（可选）
+- 需要 Apple 开发者证书与描述文件，用于签名 IPA
+- 在仓库 Settings → Secrets and variables → Actions 添加：
+  - APPLE_P12：Base64 编码的 .p12
+  - APPLE_P12_PASSWORD：证书密码
+  - APPLE_MOBILEPROVISION：Base64 编码的 .mobileprovision
+- 完成后我将更新工作流生成可安装的 IPA 并发布到 Releases
 
 ## 致谢与许可
 - 上游项目：`2dust/v2rayN`、`XTLS/Xray-core`
