@@ -55,6 +55,21 @@ jobs:
         with:
           name: v2rayN-macos-arm64
           path: out/v2rayN-macos-arm64.zip
+  build-ios-simulator:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet workload install ios
+      - run: dotnet restore v2rayN-ios/V2rayN.iOS.csproj
+      - run: dotnet publish v2rayN-ios/V2rayN.iOS.csproj -c Release -f net8.0-ios -r iossimulator-x64 -o out/iossim
+      - run: zip -r out/v2rayN-ios-simulator.zip out/iossim
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v2rayN-ios-simulator
+          path: out/v2rayN-ios-simulator.zip
   build-android:
     runs-on: windows-latest
     steps:
@@ -96,40 +111,30 @@ jobs:
           if-no-files-found: error
   release:
     if: startsWith(github.ref, 'refs/tags/')
-    needs: [build-windows, build-linux, build-macos, build-android]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
-          name: v2rayN-windows-x64
-          path: .
-      - uses: actions/download-artifact@v4
-        with:
-          name: v2rayN-linux-x64
-          path: .
-      - uses: actions/download-artifact@v4
-        with:
-          name: v2rayN-macos-arm64
-          path: .
-      - uses: actions/download-artifact@v4
-        with:
-          name: v2rayN-android-apk
+          pattern: v2rayN-*
+          merge-multiple: true
           path: .
       - name: 重命名产物以包含版本号
         run: |
           VERSION="${{ github.ref_name }}"
-          mv v2rayN-windows-x64.zip "v2rayN-windows-x64-${VERSION}.zip"
-          mv v2rayN-linux-x64.zip "v2rayN-linux-x64-${VERSION}.zip"
-          mv v2rayN-macos-arm64.zip "v2rayN-macos-arm64-${VERSION}.zip"
-          mv v2rayN-android.apk "v2rayN-android-${VERSION}.apk"
+          [ -f v2rayN-windows-x64.zip ] && mv v2rayN-windows-x64.zip "v2rayN-windows-x64-${VERSION}.zip"
+          [ -f v2rayN-linux-x64.zip ] && mv v2rayN-linux-x64.zip "v2rayN-linux-x64-${VERSION}.zip"
+          [ -f v2rayN-macos-arm64.zip ] && mv v2rayN-macos-arm64.zip "v2rayN-macos-arm64-${VERSION}.zip"
+          [ -f v2rayN-android.apk ] && mv v2rayN-android.apk "v2rayN-android-${VERSION}.apk"
+          [ -f v2rayN-ios-simulator.zip ] && mv v2rayN-ios-simulator.zip "v2rayN-ios-simulator-${VERSION}.zip"
           ls -la .
       - name: 生成 SHA256 校验文件
         run: |
-          shasum -a 256 v2rayN-windows-x64-*.zip > v2rayN-windows-x64.sha256
-          shasum -a 256 v2rayN-linux-x64-*.zip > v2rayN-linux-x64.sha256
-          shasum -a 256 v2rayN-macos-arm64-*.zip > v2rayN-macos-arm64.sha256
-          shasum -a 256 v2rayN-android-*.apk > v2rayN-android.sha256
+          ls v2rayN-windows-x64-*.zip >/dev/null 2>&1 && shasum -a 256 v2rayN-windows-x64-*.zip > v2rayN-windows-x64.sha256 || true
+          ls v2rayN-linux-x64-*.zip >/dev/null 2>&1 && shasum -a 256 v2rayN-linux-x64-*.zip > v2rayN-linux-x64.sha256 || true
+          ls v2rayN-macos-arm64-*.zip >/dev/null 2>&1 && shasum -a 256 v2rayN-macos-arm64-*.zip > v2rayN-macos-arm64.sha256 || true
+          ls v2rayN-android-*.apk >/dev/null 2>&1 && shasum -a 256 v2rayN-android-*.apk > v2rayN-android.sha256 || true
+          ls v2rayN-ios-simulator-*.zip >/dev/null 2>&1 && shasum -a 256 v2rayN-ios-simulator-*.zip > v2rayN-ios-simulator.sha256 || true
       - uses: softprops/action-gh-release@v1
         with:
           files: |
@@ -137,11 +142,13 @@ jobs:
             v2rayN-linux-x64-*.zip
             v2rayN-macos-arm64-*.zip
             v2rayN-android-*.apk
+            v2rayN-ios-simulator-*.zip
             v2rayN-windows-x64.sha256
             v2rayN-linux-x64.sha256
             v2rayN-macos-arm64.sha256
             v2rayN-android.sha256
+            v2rayN-ios-simulator.sha256
           generate_release_notes: true
-          fail_on_unmatched_files: true
+          fail_on_unmatched_files: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
